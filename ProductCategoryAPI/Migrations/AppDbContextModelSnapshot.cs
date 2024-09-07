@@ -73,17 +73,12 @@ namespace ProductCategoryAPI.Migrations
             modelBuilder.Entity("ProductCategoryAPI.Models.Product", b =>
                 {
                     b.HasOne("ProductCategoryAPI.Models.Category", "Category")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("ProductCategoryAPI.Models.Category", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

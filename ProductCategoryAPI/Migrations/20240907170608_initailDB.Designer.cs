@@ -12,8 +12,8 @@ using ProductCategoryAPI.Data;
 namespace ProductCategoryAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240903164614_initail")]
-    partial class initail
+    [Migration("20240907170608_initailDB")]
+    partial class initailDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,17 +76,12 @@ namespace ProductCategoryAPI.Migrations
             modelBuilder.Entity("ProductCategoryAPI.Models.Product", b =>
                 {
                     b.HasOne("ProductCategoryAPI.Models.Category", "Category")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("ProductCategoryAPI.Models.Category", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

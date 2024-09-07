@@ -21,36 +21,49 @@ namespace ProductCategoryApi.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult Get()
+       
+        public async Task<IActionResult> Get()
         {
-            var Protects = _context.Product.ToList();
-            return Ok(Protects);
+            var GetProducts = await _context.Product.Include(_ => _.Category).ToListAsync();
+            return Ok(GetProducts);
         }
 
-
-
-        //[HttpPost]
-        // public async Task<ActionResult<Product>> PostProduct(Product product)
-        // {
-        //     _context.Product.Add(product);
-        //     await _context.SaveChangesAsync();
-
-        //     return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
-        // }
+        //public ActionResult Get()
+        //{
+        //    var Protects = _context.Product.ToList();
+        //    return Ok(Protects);
+        //}
 
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
-        public ActionResult Post([FromBody] Product product)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> Post(Product product)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             _context.Product.Add(product);
-            _context.SaveChanges();
-
-            return Ok();
-
+            await _context.SaveChangesAsync();
+            return Created();
         }
+
+
+  
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut]
+        public async Task<IActionResult> Update(Product product)
+        {
+            _context.Product.Update(product);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
 
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -63,8 +76,6 @@ namespace ProductCategoryApi.Controllers
             {
                 return BadRequest($"Invaild Id");
             }
-
-            //var product = _context.Product.Find(Id);
             var product = _context.Product.Find(Id);
 
             if (product == null)

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProductCategoryAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class initail : Migration
+    public partial class initailDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ProductCategoryAPI.Data;
 using ProductCategoryAPI.Models;
 
@@ -19,101 +20,65 @@ namespace ProductCategoryApi.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
-        public ActionResult Get()
-        {
-            var Categories = _context.Category.ToList();
 
+        public async Task<IActionResult> Get()
+        {
+            var Categories = await _context.Category.ToListAsync();
             return Ok(Categories);
         }
 
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
-        {
-           
-            category.Products ??= new List<Product>();
 
+        //public IActionResult Post([FromBody] Category category)
+        //{
+        //    if (!ModelState.IsValid) {
+        //        return BadRequest(ModelState);
+        //    }
+        //   _context.Category.Add(category);
+        //   _context.SaveChanges();
+        //    return Created($"Created successfully.",category);
+        //}
+
+        public async Task<IActionResult> Post( Category category)
+        {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
             _context.Category.Add(category);
-
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(PostCategory), new { id = category.Id }, category);
+           await _context.SaveChangesAsync();
+            return Created();
         }
 
 
 
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, Category updatedCategory)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut]
+        public async Task<IActionResult> Update(Category category )
         {
-            if (id != updatedCategory.Id)
-            {
-                return BadRequest("Category ID mismatch.");
-            }
-
-            var existingCategory = await _context.Category
-                .Include(c => c.Products)  
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (existingCategory == null)
-            {
-                return NotFound($"Category with ID {id} not found.");
-            }
-
-            existingCategory.Name = updatedCategory.Name;
-            existingCategory.CreatedAt = updatedCategory.CreatedAt;
-
-            if (updatedCategory.Products != null)
-            {
-                existingCategory.Products.Clear();
-                foreach (var product in updatedCategory.Products)
-                {
-                    existingCategory.Products.Add(new Product
-                    {
-                        Id = product.Id,  
-                        Name = product.Name,
-                        Price = product.Price,
-                        CategoryId = id,  
-                        CreatedAt = product.CreatedAt
-                    });
-                }
-            }
-
+             _context.Category.Update(category);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok();
         }
 
-
-        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
         //[ProducesResponseType(StatusCodes.Status400BadRequest)]
         //[HttpPost]
-
-        //public ActionResult Create([FromBody] Category category)
+        //public IActionResult Post([FromBody] Category category)
         //{
-
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
         //    _context.Category.Add(category);
         //    _context.SaveChanges();
-
-        //    return Ok();
+        //    return Created($"Created successfully.", category);
         //}
-
-        //public ActionResult Post(AddCategoryDto addCategoryDto)
-        //{
-
-        //    var categoriesEntity = new Category()
-        //    {
-        //        Name = addCategoryDto.Name,
-        //        CreatedAt = DateTime.UtcNow,
-        //        Products = new List<Product>()
-
-        //    };
-
-        //    _context.Category.Add(categoriesEntity);
-        //    _context.SaveChanges();
-
-        //    return Ok(categoriesEntity);
-        //}
-
 
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -122,14 +87,14 @@ namespace ProductCategoryApi.Controllers
 
         public ActionResult Delete(int Id)
         {
-            if (Id == 0 )
+            if (Id == 0)
             {
                 return BadRequest($"Invaild Id");
             }
 
             var category = _context.Category.Find(Id);
 
-            if(category == null)
+            if (category == null)
             {
                 return NotFound($"This Id was not founded.");
             }
@@ -138,6 +103,7 @@ namespace ProductCategoryApi.Controllers
             _context.SaveChanges();
             return Ok($"Deleted successfully.");
         }
+
 
     }
 }
